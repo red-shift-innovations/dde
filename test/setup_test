@@ -1,0 +1,8 @@
+#!/bin/bash
+apt update
+apt install sudo
+useradd -m -p test -G sudo,dialout test
+touch /home/test/.sudo_as_admin_successful
+echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+echo 'export HISTFILE=/home/test/host/.bash_history' >> /home/test/.bashrc
+

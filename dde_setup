@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo "Building the ${pretty_name} Docker Development Enviroment."
+
+# Run the setup scripts
+docker run                                                    \
+    -it                                                       \
+    --name "setup_${name}"                                    \
+    -v "${setup_script_real}:/home/root/${setup_script_base}" \
+    ${base_image}                                             \
+    /bin/bash -ci "/home/root/${setup_script_base}"
+
+# Commit the setup containter to an image
+docker commit                                                  \
+    -a $USER                                                   \
+    -m "Docker Development Environment for ${pretty_name}"     \
+    "setup_${name}"                                            \
+    ${name}
+
+# Remove the setup container
+docker rm "setup_${name}"
+
+[[ -d ${HOME}/bin ]] || mkdir ${HOME}/bin
+[[ -f ${HOME}/bin/${name} ]] || ln -s $(realpath $0) ${HOME}/bin/${name}

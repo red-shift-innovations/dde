@@ -1,0 +1,9 @@
+#!/bin/bash
+
+name="test"
+pretty_name="TEST"
+base_image="ubuntu:latest"
+setup_script=${HOME}/projects/dde/test/setup_test
+workspace=${HOME}/projects/dde/test/test_workspace
+
+source ${HOME}/projects/dde/dde

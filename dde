@@ -1,0 +1,52 @@
+#!/bin/bash
+
+pushd /opt/rsi/dde
+
+source util
+
+# Check to see if docker is installed
+if ! command -v docker &> /dev/null
+then
+    source install_docker
+fi
+
+# Check for required values
+[[ -v name ]]         || fail "The name of the project must be specified in the variable \'name\'" $?
+[[ -v pretty_name ]]  || fail "The display name of the project must be specified in the variable \'pretty_name\'" $?
+[[ -v base_image ]]   || fail "The base image used by the project must be specified in the variable \'base_image\'" $?
+[[ -v setup_script ]] || fail "The setup script used by the project must be specified in the variable \'setup_script\'" $?
+[[ -v workspace ]]    || fail "The workspace used by the project must be specified in the variable \'workspace\'" $?
+
+# Set useful values
+setup_script_base=$(basename ${setup_script})
+setup_script_real=$(realpath ${setup_script})
+dde_home="/home/${name}"
+workspace_base=$(basename ${workspace})
+workspace_real=$(realpath ${workspace})
+dde_workspace="${dde_home}/${workspace_base}"
+
+# Check for optional values
+if [[ ! -v extras ]] 
+then
+    extras="${HOME}/.${name}"
+    [[ -d ${extras} ]] || mkdir ${extras}
+fi
+extras_real=$(realpath ${extras})
+
+# Build the image if needed
+docker image inspect ${name} &> /dev/null || source dde_setup
+
+# Run the image
+docker run                                  \
+    -it                                     \
+    --rm                                    \
+    --net=host                              \
+    -u ${name}                              \
+    -w ${dde_home}                          \
+    -v "${workspace_real}:${dde_workspace}" \
+    -v "${extras_real}:${dde_home}/host"    \
+    ${name}                                 \
+    /bin/bash -ci "sudo usermod -u ${UID} ${name} &> /dev/null \
+        && /bin/bash"
+
+popd
