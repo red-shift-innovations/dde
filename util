@@ -9,3 +9,13 @@ function fail {
     echo $1
     exit $2
 }
+
+function image_exists {
+    if [[ $# -lt 1 ]]
+    then
+        echo "The image_exists function requires the name of an image"
+        exit 1
+    fi
+    docker image inspect ${name} &> /dev/null
+    return $?
+}

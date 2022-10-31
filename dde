@@ -1,7 +1,10 @@
 #!/bin/bash
 
-pushd /opt/rsi/dde
+proj_path=$(realpath $0)
 
+pushd /opt/rsi/dde &> /dev/null
+
+source parse_args
 source util
 
 # Check to see if docker is installed
@@ -34,7 +37,10 @@ fi
 extras_real=$(realpath ${extras})
 
 # Build the image if needed
-docker image inspect ${name} &> /dev/null || source dde_setup
+if ${rebuild} || ! $(image_exists ${name}) 
+then
+    source dde_setup
+fi
 
 # Run the image
 docker run                                  \
@@ -49,4 +55,4 @@ docker run                                  \
     /bin/bash -ci "sudo usermod -u ${UID} ${name} &> /dev/null \
         && /bin/bash"
 
-popd
+popd &> /dev/null

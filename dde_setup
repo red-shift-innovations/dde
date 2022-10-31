@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check if the image is already set up
+if image_exists ${name}
+then
+    echo "Cleaning the ${pretty_name} Docker Development Environment."
+    docker rmi ${name}
+fi
+
 echo "Building the ${pretty_name} Docker Development Enviroment."
 
 # Run the setup scripts
@@ -21,4 +28,4 @@ docker commit                                                  \
 docker rm "setup_${name}"
 
 [[ -d ${HOME}/bin ]] || mkdir ${HOME}/bin
-[[ -f ${HOME}/bin/${name} ]] || ln -s $(realpath $0) ${HOME}/bin/${name}
+[[ -f ${HOME}/bin/${name} ]] || ln -s ${proj_path} ${HOME}/bin/${name}
